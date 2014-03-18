@@ -1,0 +1,47 @@
+#!/usr/bin/python -tt
+
+from optparse import OptionParser
+
+import blkid
+import os
+import sys
+
+def print_error(msg):
+    print >>sys.stderr, 'Error: %s' % msg
+    sys.exit(1)
+
+if __name__ == '__main__':
+    optp = OptionParser(usage = 'pyblkid [options] <device>')
+    optp.add_option('-l', '--label', dest = 'l', action = 'store_true',
+                    help = 'Volume label.')
+    optp.add_option('-t', '--type', dest = 't', action = 'store_true',
+                    help = 'Volume type.')
+    optp.add_option('-u', '--uuid', dest = 'u', action = 'store_true',
+                    help = 'Volume UUID.')
+    optp.set_defaults(l = False, t = False, u = False)
+    opts, argv = optp.parse_args()
+
+    if not len(argv) > 0:
+        optp.print_help()
+        print_error('no device')
+
+    blk = {}
+    with blkid.BlkId(argv[0]) as b:
+        try:
+            b.enable_superblocks()
+            b.set_superblocks_flags(blkid.PARTS_ENTRY_DETAILS)
+            b.enable_partitions()
+            b.do_probe()
+            blk = b.probe_results()
+        except blkid.BlkIdException, e:
+            print_error(e)
+
+    if opts.l and 'LABEL' in blk:
+        print blk['LABEL']
+    elif opts.t and 'TYPE' in blk:
+        print blk['TYPE']
+    elif opts.u and 'UUID' in blk:
+        print blk['UUID']
+    else:
+        for keyword, value in blk.iteritems():
+            print 'ID_FS_%s=%s' % (keyword, value)

@@ -575,7 +575,10 @@ PyMODINIT_FUNC init_blkid(void)
 
     PyModule_AddIntConstant(module, "PARTS_FORCE_GPT", BLKID_PARTS_FORCE_GPT);
     PyModule_AddIntConstant(module, "PARTS_ENTRY_DETAILS", BLKID_PARTS_ENTRY_DETAILS);
+#if 0
+    /* buildroot v2.20.0 does not include this */
     PyModule_AddIntConstant(module, "PARTS_MAGIC", BLKID_PARTS_MAGIC);
+#endif
 
     PyModule_AddIntConstant(module, "SUBLKS_LABEL", BLKID_SUBLKS_LABEL);
     PyModule_AddIntConstant(module, "SUBLKS_LABELRAW", BLKID_SUBLKS_LABELRAW);
